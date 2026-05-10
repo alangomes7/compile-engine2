@@ -1,0 +1,9 @@
+your-project/
+├── pom.xml
+└── src/
+    └── main/
+        ├── java/       (Your standard Java code goes here)
+        ├── jflex/      (Place your .flex files here)
+        │   └── lexer.flex
+        └── cup/        (Place your .cup files here)
+            └── parser.cup

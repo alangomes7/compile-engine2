@@ -1,0 +1,18 @@
+package scanner;
+
+import java_cup.runtime.*;
+
+/* Terminals (tokens returned by the scanner). */
+terminal LPAREN, RPAREN, LBRACKET, RBRACKET;
+terminal QUOTE, QUASIQUOTE, UNQUOTE, UNQUOTE_SPLICING, DOT;
+terminal TRUE, FALSE;
+terminal Double NUMBER;
+terminal String STRING;
+terminal String IDENTIFIER;
+
+/* Non-terminals */
+non terminal program, expression;
+
+/* The grammar */
+program ::= expression ;
+expression ::= IDENTIFIER ;

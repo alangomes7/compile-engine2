@@ -1,0 +1,16 @@
+{
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "java.compile.nullAnalysis.mode": "automatic",
+    "java.project.sourcePaths": [
+        "src/main/java",
+        "target/generated-sources/jflex",
+        "target/generated-sources/cup"
+    ],
+    "java.configuration.runtimes": [
+        {
+            "name": "JavaSE-21",
+            "path": "path/to/your/jdk-21",
+            "default": true
+        }
+    ]
+}
