@@ -1,33 +1,39 @@
-/* --------------------------Usercode Section------------------------ */
-package scanner;
+/* Java code for the class */
+package core.lexer;
 
-import java_cup.runtime.*;
+import core.lexer.models.SymbolTable;
+import core.lexer.models.atomic.Token;
+import core.lexer.models.atomic.LexerError;
+import java.util.ArrayList;
+import java.util.List;
 
 %%
 
-/* -----------------Options and Declarations Section----------------- */
-%class SchemeLexer
+%class Scanner
 %public
 %unicode
 %line
 %column
-
-/* Tell JFlex we are using CUP. This automatically makes the lexer 
-   implement java_cup.runtime.Scanner and return Symbol objects */
-%cup
+%type Token
 
 %{
-  /** Helper methods to create CUP Symbols */
-  private Symbol symbol(int type) {
-    return new Symbol(type, yyline + 1, yycolumn + 1);
+  private SymbolTable symbolTable = new SymbolTable();
+  private List<LexerError> errors = new ArrayList<>();
+
+  public SymbolTable getSymbolTable() {
+      return symbolTable;
   }
-  
-  private Symbol symbol(int type, Object value) {
-    return new Symbol(type, yyline + 1, yycolumn + 1, value);
+
+  public List<LexerError> getErrors() {
+      return errors;
+  }
+
+  private Token token(String type) {
+      return symbolTable.insert(type, yytext(), yyline + 1, yycolumn + 1);
   }
 %}
 
-/* -------------------------Macro Declarations----------------------- */
+/* Regular expressions and tokens */
 LineTerminator = \r|\n|\r\n
 InputCharacter = [^\r\n]
 WhiteSpace     = {LineTerminator} | [ \t\f]
@@ -47,30 +53,35 @@ Subsequent = {Initial} | {Digit} | {SpecialSubsequent}
 Identifier = {Initial} {Subsequent}* | \+ | - | \.\.\.
 
 %%
-/* ------------------------Lexical Rules Section--------------------- */
 
+/* Lexical rules */
 <YYINITIAL> {
   
-  "#t"               { return symbol(sym.TRUE); }
-  "#f"               { return symbol(sym.FALSE); }
+  "#t"               { return token("TRUE"); }
+  "#f"               { return token("FALSE"); }
 
-  "("                { return symbol(sym.LPAREN); }
-  ")"                { return symbol(sym.RPAREN); }
-  "["                { return symbol(sym.LBRACKET); }
-  "]"                { return symbol(sym.RBRACKET); }
-  "'"                { return symbol(sym.QUOTE); }
-  "`"                { return symbol(sym.QUASIQUOTE); }
-  ",@"               { return symbol(sym.UNQUOTE_SPLICING); }
-  ","                { return symbol(sym.UNQUOTE); }
-  "."                { return symbol(sym.DOT); }
+  "("                { return token("LPAREN"); }
+  ")"                { return token("RPAREN"); }
+  "["                { return token("LBRACKET"); }
+  "]"                { return token("RBRACKET"); }
+  "'"                { return token("QUOTE"); }
+  "`"                { return token("QUASIQUOTE"); }
+  ",@"               { return token("UNQUOTE_SPLICING"); }
+  ","                { return token("UNQUOTE"); }
+  "."                { return token("DOT"); }
 
-  /* Literals that pass their value to the parser */
-  {Number}           { return symbol(sym.NUMBER, Double.valueOf(yytext())); }
-  {String}           { return symbol(sym.STRING, yytext()); }
-  {Identifier}       { return symbol(sym.IDENTIFIER, yytext()); }
+  {Number}           { return token("NUMBER"); }
+  {String}           { return token("STRING"); }
+  {Identifier}       { return token("IDENTIFIER"); }
 
   {Comment}          { /* ignore */ }
   {WhiteSpace}       { /* ignore */ }
 }
 
-[^]                  { throw new Error("Illegal character <" + yytext() + ">"); }
+/* Error messages */
+[^] 
+{ 
+  LexerError err = new LexerError(yyline + 1, yycolumn + 1, "Illegal character <" + yytext() + ">");
+  errors.add(err);
+  // We do not return a token here, allowing the lexer to continue finding errors
+}

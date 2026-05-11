@@ -158,9 +158,9 @@
 
                 <executions>
                     <execution>
-                        <phase>compile</phase>
+                        <phase>package</phase>
                         <goals>
-                            <goal>check</goal>
+                            <goal>execute</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -179,6 +179,7 @@
                             <lexDefinitions>
                                 <lexDefinition>src/main/resources/jflex/scheme.flex</lexDefinition>
                             </lexDefinitions>
+                            <outputDirectory>src/main/java/</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
@@ -199,6 +200,7 @@
                             <cupDefinition>
                                 src/main/resources/cup/parser.cup
                             </cupDefinition>
+                            <outputDirectory>src/main/java/</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
