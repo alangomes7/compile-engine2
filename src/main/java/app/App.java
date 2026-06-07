@@ -1,19 +1,10 @@
 package app;
 
-import java.io.IOException;
-import java.util.List;
-
-import core.lexer.Scanner;
-import core.lexer.models.SymbolTable;
-import core.lexer.models.atomic.LexerError;
-import core.lexer.models.atomic.Token;
-import core.utils.Utils;
-
 public class App {
     public static void main(String[] args) {
-
+        /*
         String inputCode = "src/main/resources/jflex/example1.scm";
-        
+
         Scanner scanner = null;
         try {
             scanner = new Scanner(Utils.readInputCode(inputCode));
@@ -34,12 +25,13 @@ public class App {
                 List<LexerError> errors = scanner.getErrors();
                 System.out.println("Lexical Errors:");
                 for (LexerError error : errors) {
-                    errorMessage += "\n" + error.toString(); 
+                    errorMessage += "\n" + error.toString();
                 }
             }
             System.err.println(errorMessage);
-            System.getLogger(App.class.getName()).log(System.Logger.Level.ERROR, (String) null, errorMessage);
-        } 
+            System.getLogger(App.class.getName())
+                    .log(System.Logger.Level.ERROR, (String) null, errorMessage);
+        }
+        */
     }
-    
 }

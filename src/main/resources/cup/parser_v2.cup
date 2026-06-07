@@ -1,0 +1,159 @@
+/* --- 1. TERMINAIS (Tokens do JFlex) --- */
+terminal LPAREN, RPAREN, DOT, QUOTE, VECTOR_START, ARROW;
+terminal KW_DEFINE, KW_IF, KW_SET, KW_LAMBDA, KW_BEGIN, KW_COND, KW_ELSE;
+terminal KW_CASE, KW_AND, KW_OR, KW_LET, KW_LETSTAR, KW_LETREC, KW_DO, KW_DELAY;
+terminal String IDENTIFIER, STRING, CHARACTER;
+terminal Double NUMBER;
+terminal Boolean BOOLEAN;
+
+/* --- 2. NÃO-TERMINAIS --- */
+non terminal program, command_or_definition_star, command_or_definition_plus;
+non terminal command_or_definition, definition, def_formals;
+non terminal expression, variable, literal, self_evaluating, quotation;
+non terminal procedure_call, operator, operand, operand_star;
+non terminal lambda_expression, formals, variable_plus, body;
+non terminal sequence, expression_star, conditional, test, consequent, alternate;
+non terminal assignment, derived_expression, cond_clause_plus;
+non terminal case_clause_plus, test_star, binding_spec_star;
+non terminal iteration_spec_star, cond_clause, recipient, case_clause;
+non terminal binding_spec, iteration_spec, init, step;
+non terminal datum, simple_datum, symbol, compound_datum, list;
+non terminal datum_plus, abbreviation, abbrev_prefix, vector;
+
+/* --- 3. REGRAS GRAMATICAIS --- */
+
+program ::= command_or_definition_star ;
+
+command_or_definition_star ::= /* empty */
+                             | command_or_definition_star command_or_definition
+                             ;
+
+command_or_definition_plus ::= command_or_definition
+                             | command_or_definition_plus command_or_definition
+                             ;
+
+command_or_definition ::= expression | definition ;
+
+definition ::= LPAREN KW_DEFINE variable expression RPAREN
+             | LPAREN KW_DEFINE LPAREN variable def_formals RPAREN body RPAREN
+             ;
+
+def_formals ::= variable_plus
+              | variable_plus DOT variable
+              ;
+
+expression ::= variable | literal | procedure_call | lambda_expression
+             | conditional | assignment | derived_expression ;
+
+variable ::= IDENTIFIER ;
+
+literal ::= quotation | self_evaluating ;
+
+self_evaluating ::= BOOLEAN | NUMBER | CHARACTER | STRING ;
+
+quotation ::= QUOTE datum
+            | LPAREN QUOTE datum RPAREN ;
+
+procedure_call ::= LPAREN operator operand_star RPAREN ;
+
+operator ::= expression ;
+
+operand ::= expression ;
+
+operand_star ::= /* empty */
+               | operand_star operand ;
+
+lambda_expression ::= LPAREN KW_LAMBDA formals body RPAREN ;
+
+formals ::= LPAREN RPAREN
+          | LPAREN variable_plus RPAREN
+          | LPAREN variable_plus DOT variable RPAREN
+          | variable ;
+
+variable_plus ::= variable
+                | variable_plus variable ;
+
+body ::= command_or_definition_plus ;
+
+sequence ::= expression
+           | sequence expression ;
+
+expression_star ::= /* empty */
+                  | expression_star expression ;
+
+conditional ::= LPAREN KW_IF test consequent alternate RPAREN ;
+
+test ::= expression ;
+
+consequent ::= expression ;
+
+alternate ::= expression | /* empty */ ;
+
+assignment ::= LPAREN KW_SET variable expression RPAREN ;
+
+derived_expression ::=
+      LPAREN KW_COND cond_clause_plus RPAREN
+    | LPAREN KW_CASE expression case_clause_plus RPAREN
+    | LPAREN KW_AND test_star RPAREN
+    | LPAREN KW_OR test_star RPAREN
+    | LPAREN KW_LET LPAREN binding_spec_star RPAREN body RPAREN
+    | LPAREN KW_LET variable LPAREN binding_spec_star RPAREN body RPAREN
+    | LPAREN KW_LETSTAR LPAREN binding_spec_star RPAREN body RPAREN
+    | LPAREN KW_LETREC LPAREN binding_spec_star RPAREN body RPAREN
+    | LPAREN KW_BEGIN sequence RPAREN
+    | LPAREN KW_DO LPAREN iteration_spec_star RPAREN LPAREN test sequence RPAREN expression_star RPAREN
+    | LPAREN KW_DELAY expression RPAREN
+    ;
+
+cond_clause_plus ::= cond_clause
+                   | cond_clause_plus cond_clause ;
+
+case_clause_plus ::= case_clause
+                   | case_clause_plus case_clause ;
+
+test_star ::= /* empty */ | test_star test ;
+
+binding_spec_star ::= /* empty */ | binding_spec_star binding_spec ;
+
+iteration_spec_star ::= /* empty */ | iteration_spec_star iteration_spec ;
+
+cond_clause ::= LPAREN test sequence RPAREN
+              | LPAREN test RPAREN
+              | LPAREN test ARROW recipient RPAREN
+              | LPAREN KW_ELSE sequence RPAREN ;
+
+recipient ::= expression ;
+
+case_clause ::= LPAREN LPAREN datum_plus RPAREN sequence RPAREN
+              | LPAREN KW_ELSE sequence RPAREN ;
+
+binding_spec ::= LPAREN variable expression RPAREN ;
+
+iteration_spec ::= LPAREN variable init step RPAREN
+                 | LPAREN variable init RPAREN ;
+
+init ::= expression ;
+
+step ::= expression ;
+
+datum ::= simple_datum | compound_datum ;
+
+simple_datum ::= BOOLEAN | NUMBER | CHARACTER | STRING | symbol ;
+
+symbol ::= IDENTIFIER ;
+
+compound_datum ::= list | vector ;
+
+list ::= LPAREN RPAREN
+       | LPAREN datum_plus RPAREN
+       | LPAREN datum_plus DOT datum RPAREN
+       | abbreviation ;
+
+datum_plus ::= datum | datum_plus datum ;
+
+abbreviation ::= abbrev_prefix datum ;
+
+abbrev_prefix ::= QUOTE ;
+
+vector ::= VECTOR_START RPAREN
+         | VECTOR_START datum_plus RPAREN ;

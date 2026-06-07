@@ -160,7 +160,7 @@
                     <execution>
                         <phase>package</phase>
                         <goals>
-                            <goal>execute</goal>
+                            <goal>apply</goal>
                         </goals>
                     </execution>
                 </executions>
@@ -177,7 +177,7 @@
                         </goals>
                         <configuration>
                             <lexDefinitions>
-                                <lexDefinition>src/main/resources/jflex/scheme.flex</lexDefinition>
+                                <lexDefinition>src/main/resources/jflex/scheme_v1.flex</lexDefinition>
                             </lexDefinitions>
                             <outputDirectory>src/main/java/</outputDirectory>
                         </configuration>
@@ -198,13 +198,43 @@
 
                         <configuration>
                             <cupDefinition>
-                                src/main/resources/cup/parser.cup
+                                src/main/resources/cup/parser_v3.cup
                             </cupDefinition>
                             <outputDirectory>src/main/java/</outputDirectory>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
+
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.2.0</version>
+            </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>run-semantic-test</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>exec-maven-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>java</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <mainClass>app.TestSemanticAnalysis</mainClass>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
