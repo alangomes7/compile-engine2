@@ -1,8 +1,5 @@
 package core.codegen;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import core.parser.ast.ASTNode;
 import core.parser.ast.Visitor;
 import core.parser.ast.nodes.BindingNode;
@@ -11,9 +8,11 @@ import core.parser.ast.nodes.CondNode;
 import core.parser.ast.nodes.LetNode;
 import core.parser.ast.nodes.ListNode;
 import core.parser.ast.nodes.ProgramNode;
+import core.parser.ast.nodes.expressions.AndNode;
 import core.parser.ast.nodes.expressions.BeginNode;
 import core.parser.ast.nodes.expressions.IfNode;
 import core.parser.ast.nodes.expressions.LambdaNode;
+import core.parser.ast.nodes.expressions.OrNode;
 import core.parser.ast.nodes.expressions.ProcedureCallNode;
 import core.parser.ast.nodes.literals.BooleanNode;
 import core.parser.ast.nodes.literals.IdentifierNode;
@@ -21,6 +20,9 @@ import core.parser.ast.nodes.literals.NumberNode;
 import core.parser.ast.nodes.literals.StringNode;
 import core.parser.ast.nodes.statements.AssignmentNode;
 import core.parser.ast.nodes.statements.DefineNode;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 // Scheme to Python 3 code generator
 public class PythonGeneratorVisitor implements Visitor<String> {
@@ -197,5 +199,25 @@ public class PythonGeneratorVisitor implements Visitor<String> {
             elements.add(element.accept(this));
         }
         return "[" + String.join(", ", elements) + "]";
+    }
+
+    @Override
+    public String visit(AndNode node) {
+        // Transform (and a b c) -> (a and b and c)
+        return "("
+                + node.getExpressions().stream()
+                        .map(e -> e.accept(this))
+                        .collect(Collectors.joining(" and "))
+                + ")";
+    }
+
+    @Override
+    public String visit(OrNode node) {
+        // Transform (or a b c) -> (a or b or c)
+        return "("
+                + node.getExpressions().stream()
+                        .map(e -> e.accept(this))
+                        .collect(Collectors.joining(" and "))
+                + ")";
     }
 }

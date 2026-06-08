@@ -6,9 +6,11 @@ import core.parser.ast.nodes.CondNode;
 import core.parser.ast.nodes.LetNode;
 import core.parser.ast.nodes.ListNode;
 import core.parser.ast.nodes.ProgramNode;
+import core.parser.ast.nodes.expressions.AndNode;
 import core.parser.ast.nodes.expressions.BeginNode;
 import core.parser.ast.nodes.expressions.IfNode;
 import core.parser.ast.nodes.expressions.LambdaNode;
+import core.parser.ast.nodes.expressions.OrNode;
 import core.parser.ast.nodes.expressions.ProcedureCallNode;
 import core.parser.ast.nodes.literals.BooleanNode;
 import core.parser.ast.nodes.literals.IdentifierNode;
@@ -174,6 +176,28 @@ public class ASTPrinter implements Visitor<Void> {
         indentLevel++;
         for (ASTNode element : node.getElements()) {
             element.accept(this);
+        }
+        indentLevel--;
+        return null;
+    }
+
+    @Override
+    public Void visit(AndNode node) {
+        printIndent("AndNode");
+        indentLevel++;
+        for (ASTNode expr : node.getExpressions()) {
+            expr.accept(this);
+        }
+        indentLevel--;
+        return null;
+    }
+
+    @Override
+    public Void visit(OrNode node) {
+        printIndent("OrNode");
+        indentLevel++;
+        for (ASTNode expr : node.getExpressions()) {
+            expr.accept(this);
         }
         indentLevel--;
         return null;

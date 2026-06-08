@@ -6,9 +6,11 @@ import core.parser.ast.nodes.CondNode;
 import core.parser.ast.nodes.LetNode;
 import core.parser.ast.nodes.ListNode;
 import core.parser.ast.nodes.ProgramNode;
+import core.parser.ast.nodes.expressions.AndNode;
 import core.parser.ast.nodes.expressions.BeginNode;
 import core.parser.ast.nodes.expressions.IfNode;
 import core.parser.ast.nodes.expressions.LambdaNode;
+import core.parser.ast.nodes.expressions.OrNode;
 import core.parser.ast.nodes.expressions.ProcedureCallNode;
 import core.parser.ast.nodes.literals.BooleanNode;
 import core.parser.ast.nodes.literals.IdentifierNode;
@@ -50,6 +52,10 @@ public interface Visitor<T> {
     T visit(ProcedureCallNode node);
 
     T visit(ListNode node);
+
+    T visit(AndNode node);
+
+    T visit(OrNode node);
 
     // Açúcar Sintático (Derivadas)
     T visit(BeginNode node);

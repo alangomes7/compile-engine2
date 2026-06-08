@@ -1,0 +1,3 @@
+(define (fail) (/ 1 0)) ;; Division by zero
+(or #t (fail))
+(and #f (fail))

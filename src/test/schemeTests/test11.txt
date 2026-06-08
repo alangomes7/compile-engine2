@@ -1,0 +1,2 @@
+(define my-list (list 1 2 3))
+(cons (car my-list) (cdr (cdr my-list)))

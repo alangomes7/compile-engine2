@@ -17,7 +17,7 @@ public class App {
         List<Integer> passedTests = new ArrayList<>();
         List<Integer> failedTests = new ArrayList<>();
 
-        for (int fileTest = 1; fileTest <= 8; fileTest++) {
+        for (int fileTest = 1; fileTest <= 18; fileTest++) {
 
             String filePath = "src/test/schemeTests/test" + fileTest + ".txt";
             System.out.println("\n==================================================");

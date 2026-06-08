@@ -55,8 +55,13 @@ command_or_definition ::= expression:e {: RESULT = e; :}
 
 definition ::= LPAREN KW_DEFINE variable:v expression:e RPAREN
                {: RESULT = new DefineNode(vleft, vright, v, e); :}
+             /* Rule for functions with parameters */
              | LPAREN KW_DEFINE LPAREN variable:v def_formals:f RPAREN body:b RPAREN
                {: LambdaNode lam = new LambdaNode(fleft, fright, f, b);
+                  RESULT = new DefineNode(vleft, vright, v, lam); :}
+             /* --- ADD THIS RULE FOR ZERO ARGUMENTS --- */
+             | LPAREN KW_DEFINE LPAREN variable:v RPAREN body:b RPAREN
+               {: LambdaNode lam = new LambdaNode(vleft, vright, new ArrayList<>(), b);
                   RESULT = new DefineNode(vleft, vright, v, lam); :} ;
 
 def_formals ::= variable_plus:list {: RESULT = list; :}
@@ -118,13 +123,20 @@ assignment ::= LPAREN KW_SET variable:v expression:e RPAREN
              {: RESULT = new AssignmentNode(vleft, vright, v, e); :} ;
 
 /* --- DERIVED EXPRESSIONS IMPLEMENTATION --- */
+/* --- CORRECTED DERIVED EXPRESSIONS --- */
+/* --- CORRECTED DERIVED EXPRESSIONS --- */
 derived_expression ::=
-    LPAREN KW_BEGIN body:b RPAREN  /* Changed from sequence to body */
+    LPAREN KW_BEGIN body:b RPAREN 
     {: RESULT = new BeginNode(bleft, bright, b); :}
     | LPAREN KW_LET LPAREN binding_spec_star:bindings RPAREN body:b RPAREN
     {: RESULT = new LetNode(bindingsleft, bindingsright, bindings, b); :}
     | LPAREN KW_COND cond_clause_plus:clauses RPAREN
-    {: RESULT = new CondNode(clausesleft, clausesright, clauses); :} ;
+    {: RESULT = new CondNode(clausesleft, clausesright, clauses); :}
+    /* --- LABEL THE TERMINALS HERE: KW_AND:and and KW_OR:or --- */
+    | LPAREN KW_AND:and operand_star:args RPAREN 
+      {: RESULT = new AndNode(andleft, andright, args); :}
+    | LPAREN KW_OR:or operand_star:args RPAREN 
+      {: RESULT = new OrNode(orleft, orright, args); :} ;
 
 /* --- REGRAS DE APOIO PARA LET E COND --- */
 binding_spec_star ::= /* empty */ {: RESULT = new ArrayList<BindingNode>(); :}

@@ -8,9 +8,11 @@ import core.parser.ast.nodes.CondNode;
 import core.parser.ast.nodes.LetNode;
 import core.parser.ast.nodes.ListNode;
 import core.parser.ast.nodes.ProgramNode;
+import core.parser.ast.nodes.expressions.AndNode;
 import core.parser.ast.nodes.expressions.BeginNode;
 import core.parser.ast.nodes.expressions.IfNode;
 import core.parser.ast.nodes.expressions.LambdaNode;
+import core.parser.ast.nodes.expressions.OrNode;
 import core.parser.ast.nodes.expressions.ProcedureCallNode;
 import core.parser.ast.nodes.literals.BooleanNode;
 import core.parser.ast.nodes.literals.IdentifierNode;
@@ -181,6 +183,24 @@ public class Evaluator implements Visitor<Object> {
     public Object visit(BindingNode node) {
         // This node is typically visited via the logic in LetNode's visit method.
         throw new UnsupportedOperationException("BindingNode should be evaluated within LetNode.");
+    }
+
+    @Override
+    public Object visit(AndNode node) {
+        for (ASTNode expr : node.getExpressions()) {
+            Object result = expr.accept(this);
+            if (!isTruthy(result)) return false;
+        }
+        return true;
+    }
+
+    @Override
+    public Object visit(OrNode node) {
+        for (ASTNode expr : node.getExpressions()) {
+            Object result = expr.accept(this);
+            if (!isTruthy(result)) return false;
+        }
+        return true;
     }
 
     private boolean isTruthy(Object value) {
