@@ -1,10 +1,10 @@
-package core.ast.nodes.literals;
+package core.parser.ast.nodes.literals;
 
-import core.ast.ASTNode;
-import core.ast.Visitor;
+import core.parser.ast.ASTNode;
+import core.parser.ast.Visitor;
 
 public class StringNode extends ASTNode {
-    private String value;
+    private final String value;
 
     public StringNode(int line, int column, String value) {
         super(line, column);

@@ -1,37 +1,71 @@
 package app;
 
-import core.ast.ASTPrinter;
-import core.ast.nodes.ProgramNode;
 import core.codegen.PythonGeneratorVisitor;
-import utils.FileOperations;
+import core.parser.ast.ASTPrinter;
+import core.parser.ast.nodes.ProgramNode;
+import core.utils.FileOperations;
+import java.util.ArrayList;
+import java.util.List;
 
 public class App {
+
     public static void main(String[] args) {
-        // [1-8]
-        int fileTest = 8;
-        String filePath = "src/main/resources/schemeTests/test" + fileTest + ".txt";
 
-        try {
-            String code = FileOperations.readSchemeCodeFromFile(filePath);
-            System.out.println("Code read from file:\n" + code + "\n");
-            
-            // Scanner debug + AST
-            System.out.println("=============================================\n");
-            ASTBuilder builder = new ASTBuilder(code);
-            ProgramNode ast = builder.getAST();
-            System.out.println("AST built successfully.");
-            ASTPrinter printer = new ASTPrinter();
-            ast.accept(printer);
+        int passed = 0;
+        int failed = 0;
 
-            // Python code generator
-            System.out.println("=============================================\n");
-            PythonGeneratorVisitor codeGenerator = new PythonGeneratorVisitor();
-            String pythonCode = codeGenerator.visit(ast);
-            System.out.println("\nGenerated Python Code:");
-            System.out.println(pythonCode);
+        List<Integer> passedTests = new ArrayList<>();
+        List<Integer> failedTests = new ArrayList<>();
 
-        } catch (Exception ex) {
-            System.getLogger(App.class.getName()).log(System.Logger.Level.ERROR, (String) null, ex);
+        for (int fileTest = 1; fileTest <= 8; fileTest++) {
+
+            String filePath = "src/test/schemeTests/test" + fileTest + ".txt";
+            System.out.println("\n==================================================");
+            System.out.println("Executing Test File: test" + fileTest + ".txt");
+            System.out.println("Path: " + filePath);
+            System.out.println("==================================================\n");
+
+            try {
+
+                String code = FileOperations.readSchemeCodeFromFile(filePath);
+                System.out.println("--- ---- Input phase --- ----\n");
+                System.out.println(code + "\n");
+
+                // Scanner + Parser (AST)
+                ASTBuilder builder = new ASTBuilder(code);
+                ProgramNode ast = builder.getAST();
+                System.out.println("AST built successfully:\n");
+                ASTPrinter printer = new ASTPrinter();
+                ast.accept(printer);
+
+                // Python code generator
+                System.out.println("\nGenerating Python Code...\n");
+                PythonGeneratorVisitor codeGenerator = new PythonGeneratorVisitor();
+                String pythonCode = codeGenerator.visit(ast);
+                System.out.println(pythonCode);
+
+                passed++;
+                passedTests.add(fileTest);
+
+                System.out.println("\n✅ TEST " + fileTest + " PASSED\n");
+
+            } catch (Exception ex) {
+
+                failed++;
+                failedTests.add(fileTest);
+                System.out.println("\n❌ TEST " + fileTest + " FAILED\n");
+                System.getLogger(App.class.getName())
+                        .log(System.Logger.Level.ERROR, (String) null, ex);
+            }
         }
+
+        System.out.println("\n==================================================");
+        System.out.println("FINAL TEST SUMMARY");
+        System.out.println("==================================================");
+        System.out.println("✅ Passed: " + passed);
+        System.out.println("❌ Failed: " + failed);
+        System.out.println("\nPassed Tests: " + passedTests);
+        System.out.println("Failed Tests: " + failedTests);
+        System.out.println("\n==================================================");
     }
 }

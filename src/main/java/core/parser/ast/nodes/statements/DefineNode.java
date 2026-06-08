@@ -1,12 +1,12 @@
-package core.ast.nodes.statements;
+package core.parser.ast.nodes.statements;
 
-import core.ast.ASTNode;
-import core.ast.Visitor;
-import core.ast.nodes.literals.IdentifierNode;
+import core.parser.ast.ASTNode;
+import core.parser.ast.Visitor;
+import core.parser.ast.nodes.literals.IdentifierNode;
 
 public class DefineNode extends ASTNode {
-    private IdentifierNode name;
-    private ASTNode value;
+    private final IdentifierNode name;
+    private final ASTNode value;
 
     public DefineNode(int line, int column, IdentifierNode name, ASTNode value) {
         super(line, column);

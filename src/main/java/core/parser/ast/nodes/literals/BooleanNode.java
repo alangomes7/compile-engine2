@@ -1,10 +1,10 @@
-package core.ast.nodes.literals;
+package core.parser.ast.nodes.literals;
 
-import core.ast.ASTNode;
-import core.ast.Visitor;
+import core.parser.ast.ASTNode;
+import core.parser.ast.Visitor;
 
 public class BooleanNode extends ASTNode {
-    private Boolean value;
+    private final Boolean value;
 
     public BooleanNode(int line, int column, Boolean value) {
         super(line, column);

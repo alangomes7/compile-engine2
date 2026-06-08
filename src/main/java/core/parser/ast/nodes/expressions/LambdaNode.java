@@ -1,10 +1,9 @@
-package core.ast.nodes.expressions;
+package core.parser.ast.nodes.expressions;
 
+import core.parser.ast.ASTNode;
+import core.parser.ast.Visitor;
+import core.parser.ast.nodes.literals.IdentifierNode;
 import java.util.List;
-
-import core.ast.ASTNode;
-import core.ast.Visitor;
-import core.ast.nodes.literals.IdentifierNode;
 
 public class LambdaNode extends ASTNode {
     private final List<IdentifierNode> parameters;

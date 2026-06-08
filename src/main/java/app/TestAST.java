@@ -1,15 +1,19 @@
 package app;
 
-import core.ast.ASTPrinter;
-import core.ast.nodes.ProgramNode;
 import core.lexer.Scanner;
+import core.parser.ast.ASTPrinter;
+import core.parser.ast.nodes.ProgramNode;
+import core.parser.parser;
 import java.io.StringReader;
-import scanner.parser; // Certifique-se de que o compilador gerou a classe com este nome/pacote
 
 public class TestAST {
+    @SuppressWarnings("CallToPrintStackTrace")
     public static void main(String[] args) {
         // Um código Scheme de teste que usa exatamente as regras que mapeamos na v3
-        String codigoScheme = "(define x 10) \n" + "(if #t x 20)";
+        String codigoScheme =
+                """
+                              (define x 10)
+                              (if #t x 20)""";
 
         try {
             System.out.println("=============================================");

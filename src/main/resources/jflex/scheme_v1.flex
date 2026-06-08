@@ -2,8 +2,8 @@
 package core.lexer;
 
 import core.lexer.models.atomic.LexerError;
-import java_cup.runtime.Symbol; // Importação OBRIGATÓRIA do JCUP
-import scanner.sym;              // IMPORTAÇÃO ESSENCIAL para o Scanner encontrar os Tokens do Parser
+import java_cup.runtime.Symbol;  // Importação OBRIGATÓRIA do JCUP
+import core.parser.sym; // IMPORTAÇÃO ESSENCIAL para o Scanner encontrar os Tokens do Parser
 import java.util.ArrayList;
 import java.util.List;
 

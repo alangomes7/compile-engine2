@@ -1,8 +1,8 @@
-package core.ast;
+package core.parser.ast;
 
 public abstract class ASTNode {
-    private int line;
-    private int column;
+    private final int line;
+    private final int column;
 
     public ASTNode(int line, int column) {
         this.line = line;

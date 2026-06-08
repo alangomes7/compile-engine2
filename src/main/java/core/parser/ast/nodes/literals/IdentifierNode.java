@@ -1,10 +1,10 @@
-package core.ast.nodes.literals;
+package core.parser.ast.nodes.literals;
 
-import core.ast.ASTNode;
-import core.ast.Visitor;
+import core.parser.ast.ASTNode;
+import core.parser.ast.Visitor;
 
 public class IdentifierNode extends ASTNode {
-    private String name;
+    private final String name;
 
     public IdentifierNode(int line, int column, String name) {
         super(line, column);

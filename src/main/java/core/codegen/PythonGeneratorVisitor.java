@@ -1,20 +1,26 @@
 package core.codegen;
 
+import java.util.ArrayList;
 import java.util.List;
 
-import core.ast.ASTNode;
-import core.ast.Visitor;
-import core.ast.nodes.ProgramNode;
-import core.ast.nodes.expressions.BeginNode;
-import core.ast.nodes.expressions.IfNode;
-import core.ast.nodes.expressions.LambdaNode;
-import core.ast.nodes.expressions.ProcedureCallNode;
-import core.ast.nodes.literals.BooleanNode;
-import core.ast.nodes.literals.IdentifierNode;
-import core.ast.nodes.literals.NumberNode;
-import core.ast.nodes.literals.StringNode;
-import core.ast.nodes.statements.AssignmentNode;
-import core.ast.nodes.statements.DefineNode;
+import core.parser.ast.ASTNode;
+import core.parser.ast.Visitor;
+import core.parser.ast.nodes.BindingNode;
+import core.parser.ast.nodes.CondClauseNode;
+import core.parser.ast.nodes.CondNode;
+import core.parser.ast.nodes.LetNode;
+import core.parser.ast.nodes.ListNode;
+import core.parser.ast.nodes.ProgramNode;
+import core.parser.ast.nodes.expressions.BeginNode;
+import core.parser.ast.nodes.expressions.IfNode;
+import core.parser.ast.nodes.expressions.LambdaNode;
+import core.parser.ast.nodes.expressions.ProcedureCallNode;
+import core.parser.ast.nodes.literals.BooleanNode;
+import core.parser.ast.nodes.literals.IdentifierNode;
+import core.parser.ast.nodes.literals.NumberNode;
+import core.parser.ast.nodes.literals.StringNode;
+import core.parser.ast.nodes.statements.AssignmentNode;
+import core.parser.ast.nodes.statements.DefineNode;
 
 // Scheme to Python 3 code generator
 public class PythonGeneratorVisitor implements Visitor<String> {
@@ -120,5 +126,76 @@ public class PythonGeneratorVisitor implements Visitor<String> {
         }
         tuple.append(")[-1]");
         return tuple.toString();
+    }
+
+    @Override
+    public String visit(LetNode node) {
+        // Construct the lambda parameters and arguments
+        StringBuilder params = new StringBuilder();
+        StringBuilder args = new StringBuilder();
+
+        List<BindingNode> bindings = node.getBindings();
+        for (int i = 0; i < bindings.size(); i++) {
+            if (i > 0) {
+                params.append(", ");
+                args.append(", ");
+            }
+            // A BindingNode is essentially: (variable expression)
+            // We pass the name to params and the value to args
+            params.append(bindings.get(i).getVariable().accept(this));
+            args.append(bindings.get(i).getExpression().accept(this));
+        }
+
+        // The body is evaluated in the new scope
+        String body = sequenceToPython(node.getBody());
+
+        return "(lambda " + params + ": " + body + ")(" + args + ")";
+    }
+
+    @Override
+    public String visit(BindingNode node) {
+        // This is usually handled inside LetNode logic,
+        // but must be implemented for the interface.
+        return node.getVariable().accept(this) + " = " + node.getExpression().accept(this);
+    }
+
+    @Override
+    public String visit(CondNode node) {
+        // Transform (cond ((test1) (res1)) ((test2) (res2)) (else (res3)))
+        // into: (res1 if test1 else (res2 if test2 else res3))
+        return buildCondTernary(node.getClauses(), 0);
+    }
+
+    private String buildCondTernary(List<CondClauseNode> clauses, int index) {
+        if (index >= clauses.size()) {
+            return "None";
+        }
+
+        CondClauseNode clause = clauses.get(index);
+
+        // If it's the 'else' clause, just return the result
+        if (clause.isElseClause()) {
+            return sequenceToPython(clause.getSequence());
+        }
+
+        String test = clause.getTest().accept(this);
+        String thenBranch = sequenceToPython(clause.getSequence());
+        String elseBranch = buildCondTernary(clauses, index + 1);
+
+        return "(" + thenBranch + " if " + test + " else " + elseBranch + ")";
+    }
+
+    @Override
+    public String visit(CondClauseNode node) {
+        return "";
+    }
+
+    @Override
+    public String visit(ListNode node) {
+        List<String> elements = new ArrayList<>();
+        for (ASTNode element : node.getElements()) {
+            elements.add(element.accept(this));
+        }
+        return "[" + String.join(", ", elements) + "]";
     }
 }

@@ -1,9 +1,8 @@
-package core.ast.nodes;
+package core.parser.ast.nodes;
 
+import core.parser.ast.ASTNode;
+import core.parser.ast.Visitor;
 import java.util.List;
-
-import core.ast.ASTNode;
-import core.ast.Visitor;
 
 public class ProgramNode extends ASTNode {
     private final List<ASTNode> commandsOrDefinitions;

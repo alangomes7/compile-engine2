@@ -1,31 +1,21 @@
-my-compiler/
+core/
+├── lexer/             # (Existing)
+├── parser/            # (Existing)
+│   └── ast/           # Put your ASTNode.java, Visitor.java, and nodes/ here
+│       ├── Node.java  # (Your ASTNode base class)
+│       ├── Visitor.java
+│       └── nodes/     # LetNode.java, IfNode.java, etc.
 │
-├── bin/                       # Compiled .class files go here
-├── src/
-│   ├── lexer/                 # Lexical analyzer components
-│   │   ├── Lexer.java
-│   │   ├── Token.java
-│   │   └── TokenType.java
-│   │
-│   ├── parser/                # Syntax analyzer (AST generation)
-│   │   ├── Parser.java
-│   │   └── ast/
-│   │       └── Node.java
-│   │
-│   ├── semantic/              # Type checker and symbol table
-│   │   ├── SemanticAnalyzer.java
-│   │   └── SymbolTable.java
-│   │
-│   ├── ir/                    # Intermediate Representation
-│   │   └── IRCode.java
-│   │
-│   ├── optimizer/             # Optimization passes
-│   │   └── Optimizer.java
-│   │
-│   ├── codegen/               # Target machine code generator
-│   │   └── CodeGenerator.java
-│   │
-│   └── Main.java              # Main driver tying all phases together
+├── runtime/           # Evaluator and Environment logic
+│   ├── Evaluator.java
+│   └── Environment.java
 │
-├── build.gradle               # Build automation (or pom.xml for Maven)
-└── README.md
+├── utils/             # Debugging and Parser tools
+│   └── ASTPrinter.java
+│
+├── semantic/          # (not necessary)
+├── ir/                # (not necessary)
+├── optimizer/         # (not necessary)
+└──codegen/           # (Existing)
+app/
+└── App.java          # Driver

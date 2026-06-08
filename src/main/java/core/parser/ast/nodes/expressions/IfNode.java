@@ -1,12 +1,12 @@
-package core.ast.nodes.expressions;
+package core.parser.ast.nodes.expressions;
 
-import core.ast.ASTNode;
-import core.ast.Visitor;
+import core.parser.ast.ASTNode;
+import core.parser.ast.Visitor;
 
 public class IfNode extends ASTNode {
-    private ASTNode condition;
-    private ASTNode thenBranch;
-    private ASTNode elseBranch; // Pode ser null se o 'if' não tiver 'else'
+    private final ASTNode condition;
+    private final ASTNode thenBranch;
+    private final ASTNode elseBranch; // Pode ser null se o 'if' não tiver 'else'
 
     public IfNode(int line, int column, ASTNode condition, ASTNode thenBranch, ASTNode elseBranch) {
         super(line, column);
