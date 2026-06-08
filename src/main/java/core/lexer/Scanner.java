@@ -5,7 +5,6 @@
 /* Java code for the class */
 package core.lexer;
 
-import core.lexer.models.SymbolTable;
 import core.lexer.models.atomic.LexerError;
 import java.util.ArrayList;
 import java.util.List;
@@ -348,28 +347,19 @@ public class Scanner implements java_cup.runtime.Scanner {
     private boolean zzEOFDone;
 
     /* user code: */
-    private SymbolTable symbolTable = new SymbolTable();
     private List<LexerError> errors = new ArrayList<>();
-
-    public SymbolTable getSymbolTable() {
-        return symbolTable;
-    }
 
     public List<LexerError> getErrors() {
         return errors;
     }
 
-    /* * Novo método token: Insere na sua tabela de símbolos e já devolve
-     * o objeto Symbol que o JCUP exige para montar a AST.
-     */
+    /* Retorna o token para o JCUP construir a AST, sem mexer na tabela de símbolos */
     private Symbol token(int cupSymbolType, String typeName) {
-        symbolTable.insert(typeName, yytext(), yyline + 1, yycolumn + 1);
         return new Symbol(cupSymbolType, yyline, yycolumn, yytext());
     }
 
     /* Sobrecarga para passar o valor parseado (como Double para NUMBER) */
     private Symbol token(int cupSymbolType, String typeName, Object parsedValue) {
-        symbolTable.insert(typeName, yytext(), yyline + 1, yycolumn + 1);
         return new Symbol(cupSymbolType, yyline, yycolumn, parsedValue);
     }
 

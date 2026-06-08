@@ -1,4 +1,3 @@
 package core.semantic;
 
-public class SemanticAnalyzer {
-}
+public class SemanticAnalyzer {}

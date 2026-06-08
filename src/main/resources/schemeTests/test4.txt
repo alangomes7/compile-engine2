@@ -1,0 +1,5 @@
+(define lst '(1 2 3 4))
+(car lst)                     ; first element
+(cdr lst)                     ; rest of the list
+(cons 0 lst)                  ; prepend
+(null? (cdr (cdr (cdr lst)))) ; check if empty

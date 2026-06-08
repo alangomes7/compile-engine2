@@ -1,0 +1,4 @@
+(define (hypotenuse a b)
+  (let ((square-a (* a a))
+        (square-b (* b b)))
+    (sqrt (+ square-a square-b))))

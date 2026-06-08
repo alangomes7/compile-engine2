@@ -1,11 +1,12 @@
 package core.ast.nodes;
 
-import core.ast.ASTNode;
-import core.ast.Visitor;
 import java.util.List;
 
+import core.ast.ASTNode;
+import core.ast.Visitor;
+
 public class ProgramNode extends ASTNode {
-    private List<ASTNode> commandsOrDefinitions;
+    private final List<ASTNode> commandsOrDefinitions;
 
     public ProgramNode(int line, int column, List<ASTNode> commandsOrDefinitions) {
         super(line, column);

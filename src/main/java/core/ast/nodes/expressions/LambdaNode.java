@@ -1,13 +1,14 @@
 package core.ast.nodes.expressions;
 
+import java.util.List;
+
 import core.ast.ASTNode;
 import core.ast.Visitor;
 import core.ast.nodes.literals.IdentifierNode;
-import java.util.List;
 
 public class LambdaNode extends ASTNode {
-    private List<IdentifierNode> parameters;
-    private List<ASTNode> body;
+    private final List<IdentifierNode> parameters;
+    private final List<ASTNode> body;
 
     public LambdaNode(int line, int column, List<IdentifierNode> parameters, List<ASTNode> body) {
         super(line, column);

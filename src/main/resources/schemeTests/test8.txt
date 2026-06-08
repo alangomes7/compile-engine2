@@ -1,0 +1,6 @@
+(define (swap-and-sum a b)
+  (begin
+    (define temp a)
+    (set! a b)
+    (set! b temp)
+    (+ a b)))

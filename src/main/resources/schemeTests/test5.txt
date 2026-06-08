@@ -1,0 +1,4 @@
+(define (apply-twice f x)
+  (f (f x)))
+(define (add-one n) (+ n 1))
+(apply-twice add-one 5)

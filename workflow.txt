@@ -1,0 +1,31 @@
+my-compiler/
+│
+├── bin/                       # Compiled .class files go here
+├── src/
+│   ├── lexer/                 # Lexical analyzer components
+│   │   ├── Lexer.java
+│   │   ├── Token.java
+│   │   └── TokenType.java
+│   │
+│   ├── parser/                # Syntax analyzer (AST generation)
+│   │   ├── Parser.java
+│   │   └── ast/
+│   │       └── Node.java
+│   │
+│   ├── semantic/              # Type checker and symbol table
+│   │   ├── SemanticAnalyzer.java
+│   │   └── SymbolTable.java
+│   │
+│   ├── ir/                    # Intermediate Representation
+│   │   └── IRCode.java
+│   │
+│   ├── optimizer/             # Optimization passes
+│   │   └── Optimizer.java
+│   │
+│   ├── codegen/               # Target machine code generator
+│   │   └── CodeGenerator.java
+│   │
+│   └── Main.java              # Main driver tying all phases together
+│
+├── build.gradle               # Build automation (or pom.xml for Maven)
+└── README.md
