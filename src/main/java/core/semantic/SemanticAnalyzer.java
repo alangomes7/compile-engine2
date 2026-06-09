@@ -18,7 +18,6 @@ public class SemanticAnalyzer implements Visitor<SchemeType> {
     // --- 1. RAIZ DO PROGRAMA ---
     @Override
     public SchemeType visit(ProgramNode node) {
-        // Percorre todos os comandos. O tipo de retorno do programa não importa muito.
         for (ASTNode child : node.getCommandsOrDefinitions()) {
             child.accept(this);
         }
@@ -59,15 +58,11 @@ public class SemanticAnalyzer implements Visitor<SchemeType> {
     // --- 4. DECLARAÇÕES E ATRIBUIÇÕES ---
     @Override
     public SchemeType visit(DefineNode node) {
-        // Primeiro, avaliamos a expressão para descobrir o tipo dela
         SchemeType valueType = node.getValue().accept(this);
-
-        // Depois, salvamos na tabela de símbolos no escopo atual
         String varName = node.getName().getName();
         symbolTable.define(
                 varName, new SymbolInfo(varName, valueType, node.getLine(), node.getColumn()));
-
-        return SchemeType.UNKNOWN; // 'define' em si não retorna um valor utilizável matematicamente
+        return SchemeType.UNKNOWN;
     }
 
     @Override
@@ -84,48 +79,35 @@ public class SemanticAnalyzer implements Visitor<SchemeType> {
                             + "', pois ela não existe.");
         }
 
-        // Avalia o novo valor e atualiza o tipo na tabela de símbolos
         SchemeType newValueType = node.getValue().accept(this);
         info.setType(newValueType);
-
         return SchemeType.UNKNOWN;
     }
 
     // --- 5. CONTROLE DE FLUXO E OPERAÇÕES ---
     @Override
     public SchemeType visit(IfNode node) {
-        // Avalia a condição (no Scheme, tudo que não é #f é verdadeiro, mas podemos ser flexíveis
-        // ou rigorosos)
         node.getCondition().accept(this);
-
         SchemeType thenType = node.getThenBranch().accept(this);
 
         if (node.getElseBranch() != null) {
             SchemeType elseType = node.getElseBranch().accept(this);
-            // Se os tipos dos dois blocos forem diferentes, retornamos UNKNOWN por precaução
             if (thenType != elseType) return SchemeType.UNKNOWN;
         }
-
         return thenType;
     }
 
     @Override
     public SchemeType visit(ProcedureCallNode node) {
-        // Avalia o operador (qual função está sendo chamada?)
-        // Como o JavaCUP mapeia operadores nativos (como + e -) como Identifiers, nós os
-        // interceptamos aqui
         if (node.getOperator() instanceof IdentifierNode) {
             String funcName = ((IdentifierNode) node.getOperator()).getName();
 
-            // Verificação de Tipos Estrita para funções matemáticas nativas!
             if (funcName.equals("+")
                     || funcName.equals("-")
                     || funcName.equals("*")
                     || funcName.equals("/")) {
                 for (ASTNode operand : node.getOperands()) {
                     SchemeType opType = operand.accept(this);
-
-                    // Ajuste aqui: aceitamos NUMBER e UNKNOWN (parâmetros de lambda)
                     if (opType != SchemeType.NUMBER && opType != SchemeType.UNKNOWN) {
                         throw new RuntimeException(
                                 "Erro Semântico de Tipagem [Linha "
@@ -140,7 +122,6 @@ public class SemanticAnalyzer implements Visitor<SchemeType> {
             }
         }
 
-        // Se for outra chamada de função, apenas avalia os operandos por enquanto
         for (ASTNode operand : node.getOperands()) {
             operand.accept(this);
         }
@@ -149,11 +130,8 @@ public class SemanticAnalyzer implements Visitor<SchemeType> {
 
     @Override
     public SchemeType visit(LambdaNode node) {
-        // --- MAGIA DO ESCOPO ACONTECENDO AQUI ---
-        symbolTable.enterScope(); // Cria um novo escopo isolado para a função
+        symbolTable.enterScope();
 
-        // Declara os parâmetros dentro deste novo escopo (eles nascem como UNKNOWN pois receberão
-        // valores na chamada)
         for (IdentifierNode param : node.getParameters()) {
             symbolTable.define(
                     param.getName(),
@@ -164,16 +142,12 @@ public class SemanticAnalyzer implements Visitor<SchemeType> {
                             param.getColumn()));
         }
 
-        // Avalia o corpo da função (agora ele enxerga os parâmetros)
         SchemeType returnType = SchemeType.UNKNOWN;
         for (ASTNode bodyNode : node.getBody()) {
             returnType = bodyNode.accept(this);
         }
 
-        symbolTable.exitScope(); // Destrói as variáveis locais! O escopo global volta a ser o
-        // principal.
-        // -----------------------------------------
-
+        symbolTable.exitScope();
         return SchemeType.FUNCTION;
     }
 
@@ -183,6 +157,81 @@ public class SemanticAnalyzer implements Visitor<SchemeType> {
         for (ASTNode expr : node.getExpressions()) {
             lastType = expr.accept(this);
         }
-        return lastType; // O 'begin' retorna o valor da sua última instrução
+        return lastType;
+    }
+
+    // ==========================================
+    // --- NOVOS NÓS DE AÇÚCAR SINTÁTICO ---
+    // ==========================================
+
+    @Override
+    public SchemeType visit(AndNode node) {
+        for (ASTNode test : node.getTests()) {
+            test.accept(this); // Apenas avalia se os nós internos são semanticamente válidos
+        }
+        return SchemeType.BOOLEAN;
+    }
+
+    @Override
+    public SchemeType visit(OrNode node) {
+        for (ASTNode test : node.getTests()) {
+            test.accept(this);
+        }
+        return SchemeType.BOOLEAN;
+    }
+
+    @Override
+    public SchemeType visit(LetNode node) {
+        // O let cria um escopo local para suas variáveis
+        symbolTable.enterScope();
+
+        // 1. Resolvemos os valores das variáveis e as registramos na Tabela de Símbolos
+        for (BindingNode binding : node.getBindings()) {
+            SchemeType valueType = binding.getValue().accept(this);
+            String varName = binding.getVariable().getName();
+
+            symbolTable.define(
+                    varName,
+                    new SymbolInfo(varName, valueType, binding.getLine(), binding.getColumn()));
+        }
+
+        // 2. Avaliamos o corpo do Let (que agora enxerga essas variáveis recém-criadas)
+        SchemeType lastType = SchemeType.UNKNOWN;
+        for (ASTNode expr : node.getBody()) {
+            lastType = expr.accept(this);
+        }
+
+        // 3. Destruímos o escopo! As variáveis do let deixam de existir aqui.
+        symbolTable.exitScope();
+
+        return lastType; // O let retorna o tipo da sua última expressão executada
+    }
+
+    @Override
+    public SchemeType visit(CondNode node) {
+        SchemeType returnType = null;
+
+        for (CondClauseNode clause : node.getClauses()) {
+            // Se não for o 'else', avalia a condição
+            if (clause.getCondition() != null) {
+                clause.getCondition().accept(this);
+            }
+
+            // Avalia os comandos executados caso essa condição seja verdadeira
+            SchemeType clauseType = SchemeType.UNKNOWN;
+            for (ASTNode expr : clause.getSequence()) {
+                clauseType = expr.accept(this);
+            }
+
+            // Se for a primeira cláusula, salvamos o tipo.
+            // Se as cláusulas retornarem tipos muito diferentes, marcamos como UNKNOWN.
+            if (returnType == null) {
+                returnType = clauseType;
+            } else if (returnType != clauseType) {
+                returnType = SchemeType.UNKNOWN;
+            }
+        }
+
+        return returnType != null ? returnType : SchemeType.UNKNOWN;
     }
 }

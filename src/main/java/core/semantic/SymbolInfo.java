@@ -29,7 +29,6 @@ public class SymbolInfo {
         return column;
     }
 
-    // Útil caso o tipo da variável mude com um (set! x "nova string")
     public void setType(SchemeType type) {
         this.type = type;
     }

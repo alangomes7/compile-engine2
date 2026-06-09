@@ -36,7 +36,7 @@ public class TestSemantic {
             // 0. Lê o conteúdo do arquivo
             Path path = Paths.get(filePath);
             if (!Files.exists(path)) {
-                System.err.println("❌ ERRO: Arquivo não encontrado no caminho especificado.\n");
+                System.err.println("ERRO: Arquivo não encontrado no caminho especificado.\n");
                 return;
             }
             String codigoScheme = Files.readString(path);
@@ -51,14 +51,14 @@ public class TestSemantic {
             raiz.accept(semanticAnalyzer);
 
             // Se chegou aqui, o código passou por todas as validações!
-            System.out.println("✅ RESULTADO: Sucesso! Nenhuma infração semântica encontrada.\n");
+            System.out.println("RESULTADO: Sucesso! Nenhuma infração semântica encontrada.\n");
 
         } catch (RuntimeException e) {
             // Captura erros semânticos (variáveis não declaradas, erros de tipo)
-            System.err.println("❌ ERRO SEMÂNTICO: " + e.getMessage() + "\n");
+            System.err.println("ERRO SEMÂNTICO: " + e.getMessage() + "\n");
         } catch (Exception e) {
             // Captura erros de sintaxe ou problemas de I/O
-            System.err.println("⚠️ ERRO SINTÁTICO/SISTEMA: " + e.getMessage() + "\n");
+            System.err.println("ERRO SINTÁTICO/SISTEMA: " + e.getMessage() + "\n");
         }
 
         // Pausa rápida para organizar o console (System.out vs System.err)

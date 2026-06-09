@@ -2,8 +2,8 @@
 package core.lexer;
 
 import core.lexer.models.atomic.LexerError;
-import java_cup.runtime.Symbol; // Importação OBRIGATÓRIA do JCUP
-import scanner.sym;              // IMPORTAÇÃO ESSENCIAL para o Scanner encontrar os Tokens do Parser
+import java_cup.runtime.Symbol;
+import scanner.sym;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,12 +23,10 @@ import java.util.List;
       return errors;
   }
 
-  /* Retorna o token para o JCUP construir a AST, sem mexer na tabela de símbolos */
   private Symbol token(int cupSymbolType, String typeName) {
       return new Symbol(cupSymbolType, yyline, yycolumn, yytext());
   }
 
-  /* Sobrecarga para passar o valor parseado (como Double para NUMBER) */
   private Symbol token(int cupSymbolType, String typeName, Object parsedValue) {
       return new Symbol(cupSymbolType, yyline, yycolumn, parsedValue);
   }
@@ -57,7 +55,7 @@ Identifier = {Initial} {Subsequent}* | \+ | - | \.\.\.
 /* Lexical rules */
 <YYINITIAL> {
 
-  /* --- PALAVRAS-CHAVE (Devem vir antes de Identifier!) --- */
+  /* --- PALAVRAS-CHAVE --- */
   "define"           { return token(sym.KW_DEFINE, "KW_DEFINE"); }
   "if"               { return token(sym.KW_IF, "KW_IF"); }
   "set!"             { return token(sym.KW_SET, "KW_SET"); }
@@ -88,7 +86,7 @@ Identifier = {Initial} {Subsequent}* | \+ | - | \.\.\.
   {Number}           { return token(sym.NUMBER, "NUMBER", Double.parseDouble(yytext())); }
   {String}           { return token(sym.STRING, "STRING", yytext()); }
 
-  /* --- IDENTIFICADORES (Nomes de variáveis/funções) --- */
+  /* --- IDENTIFICADORES --- */
   {Identifier}       { return token(sym.IDENTIFIER, "IDENTIFIER"); }
 
   /* --- IGNORADOS --- */
@@ -101,5 +99,4 @@ Identifier = {Initial} {Subsequent}* | \+ | - | \.\.\.
 {
   LexerError err = new LexerError(yyline + 1, yycolumn + 1, "Illegal character <" + yytext() + ">");
   errors.add(err);
-  // Não fazemos 'return' aqui. O JFlex simplesmente registra o erro e continua lendo o arquivo.
 }

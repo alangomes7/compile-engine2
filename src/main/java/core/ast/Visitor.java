@@ -29,6 +29,13 @@ public interface Visitor<T> {
 
     T visit(ProcedureCallNode node);
 
-    // Açúcar Sintático (Derivadas)
     T visit(BeginNode node);
+
+    T visit(AndNode node);
+
+    T visit(OrNode node);
+
+    T visit(LetNode node);
+
+    T visit(CondNode node);
 }

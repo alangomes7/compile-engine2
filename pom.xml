@@ -198,7 +198,7 @@
 
                         <configuration>
                             <cupDefinition>
-                                src/main/resources/cup/parser_v3.cup
+                                src/main/resources/cup/parser_v4.cup
                             </cupDefinition>
                             <outputDirectory>src/main/java/</outputDirectory>
                         </configuration>
@@ -216,21 +216,15 @@
 
     <profiles>
         <profile>
-            <id>run-semantic-test</id>
+            <id>test-semantic</id>
             <build>
                 <plugins>
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>exec-maven-plugin</artifactId>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>java</goal>
-                                </goals>
-                            </execution>
-                        </executions>
+                        <version>3.2.0</version>
                         <configuration>
-                            <mainClass>app.TestSemanticAnalysis</mainClass>
+                            <mainClass>app.TestSemantic</mainClass>
                         </configuration>
                     </plugin>
                 </plugins>

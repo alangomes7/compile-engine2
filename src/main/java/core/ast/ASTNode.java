@@ -17,7 +17,5 @@ public abstract class ASTNode {
         return column;
     }
 
-    // Método obrigatório para o padrão Visitor (usaremos na Análise Semântica)
-    // Todo nó que herdar de ASTNode terá que implementar esse método.
     public abstract <T> T accept(Visitor<T> visitor);
 }

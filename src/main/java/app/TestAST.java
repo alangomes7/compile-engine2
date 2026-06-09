@@ -27,7 +27,7 @@ public class TestAST {
             System.out.println("-> Executando análise sintática...");
             ProgramNode raiz = (ProgramNode) p.parse().value;
 
-            System.out.println("✅ Sintaxe válida! Árvore Sintática (AST) criada na memória.\n");
+            System.out.println("Sintaxe válida! Árvore Sintática (AST) criada na memória.\n");
 
             // 4. Instancia o Visitor de impressão e faz a viagem pela árvore
             System.out.println("=== VISUALIZAÇÃO DA ÁRVORE SINTÁTICA (AST) ===");
@@ -36,7 +36,7 @@ public class TestAST {
             System.out.println("=============================================");
 
         } catch (Exception e) {
-            System.err.println("❌ Ocorreu um erro durante o processamento sintático:");
+            System.err.println("Ocorreu um erro durante o processamento sintático:");
             e.printStackTrace();
         }
     }
