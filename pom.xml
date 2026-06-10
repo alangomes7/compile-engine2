@@ -177,7 +177,7 @@
                         </goals>
                         <configuration>
                             <lexDefinitions>
-                                <lexDefinition>src/main/resources/jflex/scheme_v1.flex</lexDefinition>
+                                <lexDefinition>src/main/resources/jflex/scheme_v1.0.flex</lexDefinition>
                             </lexDefinitions>
                             <outputDirectory>src/main/java/</outputDirectory>
                         </configuration>
@@ -198,7 +198,7 @@
 
                         <configuration>
                             <cupDefinition>
-                                src/main/resources/cup/parser_v4.cup
+                                src/main/resources/cup/parser_v4.0.cup
                             </cupDefinition>
                             <outputDirectory>src/main/java/</outputDirectory>
                         </configuration>
