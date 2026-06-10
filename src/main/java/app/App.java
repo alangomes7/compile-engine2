@@ -3,6 +3,7 @@ package app;
 import core.codegen.PythonGeneratorVisitor;
 import core.parser.ast.ASTPrinter;
 import core.parser.ast.nodes.ProgramNode;
+import core.semantic.SemanticAnalyzer;
 import core.utils.FileOperations;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +18,7 @@ public class App {
         List<Integer> passedTests = new ArrayList<>();
         List<Integer> failedTests = new ArrayList<>();
 
-        for (int fileTest = 1; fileTest <= 18; fileTest++) {
+        for (int fileTest = 1; fileTest <= 20; fileTest++) {
 
             String filePath = "src/test/schemeTests/test" + fileTest + ".txt";
             System.out.println("\n==================================================");
@@ -37,6 +38,24 @@ public class App {
                 System.out.println("AST built successfully:\n");
                 ASTPrinter printer = new ASTPrinter();
                 ast.accept(printer);
+
+                // --- ---- SEMANTIC PHASE --- ----
+                System.out.println("\n--- ---- Semantic phase --- ----\n");
+                SemanticAnalyzer semanticAnalyzer = new SemanticAnalyzer();
+                ast.accept(semanticAnalyzer);
+
+                if (semanticAnalyzer.hasErrors()) {
+                    System.out.println("Semantic Errors Found:");
+                    for (String err : semanticAnalyzer.getErrors()) {
+                        System.out.println("   - " + err);
+                    }
+                    // Lança exceção para interromper o fluxo e cair no bloco catch (marcando como
+                    // FAILED)
+                    throw new RuntimeException("Semantic phase validation failed.");
+                } else {
+                    System.out.println("Semantic analysis passed! No errors found.");
+                }
+                // --------------------------------
 
                 // Python code generator
                 System.out.println("\nGenerating Python Code...\n");

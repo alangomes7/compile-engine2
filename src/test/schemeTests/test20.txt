@@ -1,0 +1,4 @@
+(define nome "Compilador")
+(define versao 2)
+(define resultado (+ nome versao)) ;; Semantic error: type mismatch
+;; Expects: Semantic Error (Type)

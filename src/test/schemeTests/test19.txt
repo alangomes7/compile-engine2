@@ -1,0 +1,6 @@
+(define x 10)
+(let ((y 20))
+  (+ x y))
+(set! y 50) ;; Semantic error: y is out of scope
+(+ x y)
+;; Expects: Semantic Error (Scope)
