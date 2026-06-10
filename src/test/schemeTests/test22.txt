@@ -1,0 +1,5 @@
+;; test2_syntactic.txt - Erro Sintático
+(define (10 n) ;; '10' é um NUMBER, o parser exige um IDENTIFIER
+  (if (< n 0)
+      (- n)
+      n))

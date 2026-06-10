@@ -1,0 +1,5 @@
+;; test6_semantic.txt - Erro Semântico
+(define (hypotenuse a b)
+  (let ((square-a (* a "texto")) ;; Erro de tipo: Multiplicando número por string!
+        (square-b (* b b)))
+    (sqrt (+ square-a square-b))))

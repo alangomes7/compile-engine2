@@ -5,9 +5,11 @@ import static core.parser.sym.LPAREN;
 import static core.parser.sym.terminalNames;
 
 import core.lexer.Scanner;
+import core.lexer.models.atomic.LexerError; // IMPORT NOVO
 import core.parser.ast.nodes.ProgramNode;
 import core.parser.parser;
 import java.io.StringReader;
+import java.util.List;
 
 public class ASTBuilder {
 
@@ -31,6 +33,21 @@ public class ASTBuilder {
         @SuppressWarnings("deprecation")
         parser p = new parser(scannerToParser);
         this.ast = (ProgramNode) p.parse().value;
+
+        List<LexerError> lexerErrors = scannerToParser.getErrors();
+        if (!lexerErrors.isEmpty()) {
+            System.err.println("\n❌ Lexical Errors Found:");
+            for (LexerError err : lexerErrors) {
+                System.err.println(
+                        "   - "
+                                + err.getMessage()
+                                + " na linha "
+                                + err.getLine()
+                                + ", coluna "
+                                + err.getCol());
+            }
+            throw new RuntimeException("Lexical phase validation failed.");
+        }
     }
 
     public ProgramNode getAST() {

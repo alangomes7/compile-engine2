@@ -1,0 +1,4 @@
+;; test1_lexical.txt - Erro Léxico
+(define x 10)
+(define y (* x [2])) ;; Colchetes não pertencem ao alfabeto JFlex!
+(+ y 5)
