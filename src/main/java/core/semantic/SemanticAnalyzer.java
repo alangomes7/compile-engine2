@@ -2,10 +2,24 @@ package core.semantic;
 
 import core.parser.ast.ASTNode;
 import core.parser.ast.Visitor;
-import core.parser.ast.nodes.*;
-import core.parser.ast.nodes.expressions.*;
-import core.parser.ast.nodes.literals.*;
-import core.parser.ast.nodes.statements.*;
+import core.parser.ast.nodes.BindingNode;
+import core.parser.ast.nodes.CondClauseNode;
+import core.parser.ast.nodes.CondNode;
+import core.parser.ast.nodes.LetNode;
+import core.parser.ast.nodes.ListNode;
+import core.parser.ast.nodes.ProgramNode;
+import core.parser.ast.nodes.expressions.AndNode;
+import core.parser.ast.nodes.expressions.BeginNode;
+import core.parser.ast.nodes.expressions.IfNode;
+import core.parser.ast.nodes.expressions.LambdaNode;
+import core.parser.ast.nodes.expressions.OrNode;
+import core.parser.ast.nodes.expressions.ProcedureCallNode;
+import core.parser.ast.nodes.literals.BooleanNode;
+import core.parser.ast.nodes.literals.IdentifierNode;
+import core.parser.ast.nodes.literals.NumberNode;
+import core.parser.ast.nodes.literals.StringNode;
+import core.parser.ast.nodes.statements.AssignmentNode;
+import core.parser.ast.nodes.statements.DefineNode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +46,6 @@ public class SemanticAnalyzer implements Visitor<SchemeType> {
         return !errors.isEmpty();
     }
 
-    // --- 1. RAIZ E LISTAS ---
     @Override
     public SchemeType visit(ProgramNode node) {
         for (ASTNode child : node.getCommandsOrDefinitions()) {
@@ -49,7 +62,6 @@ public class SemanticAnalyzer implements Visitor<SchemeType> {
         return SchemeType.UNKNOWN;
     }
 
-    // --- 2. VALORES LITERAIS ---
     @Override
     public SchemeType visit(NumberNode node) {
         return SchemeType.NUMBER;
@@ -65,23 +77,21 @@ public class SemanticAnalyzer implements Visitor<SchemeType> {
         return SchemeType.BOOLEAN;
     }
 
-    // --- 3. IDENTIFICADORES E CONTEXTO ---
     @Override
     public SchemeType visit(IdentifierNode node) {
         SymbolInfo info = symbolTable.lookup(node.getName());
         if (info == null) {
             errors.add(
-                    "Erro de Escopo [Linha "
+                    "Scope error [lin "
                             + node.getLine()
-                            + "]: Variável '"
+                            + "]: var '"
                             + node.getName()
-                            + "' não declarada.");
+                            + "' not declared.");
             return SchemeType.UNKNOWN;
         }
         return info.getType();
     }
 
-    // --- 4. DECLARAÇÕES E ATRIBUIÇÕES ---
     @Override
     public SchemeType visit(DefineNode node) {
         SchemeType valueType = node.getValue().accept(this);
@@ -98,11 +108,11 @@ public class SemanticAnalyzer implements Visitor<SchemeType> {
 
         if (info == null) {
             errors.add(
-                    "Erro de Escopo [Linha "
+                    "Scope error [lin "
                             + node.getLine()
-                            + "]: Impossível reatribuir (set!) a variável '"
+                            + "]: Not possible to re-assign to'"
                             + varName
-                            + "', pois ela não existe.");
+                            + "', variable not declared.");
         } else {
             SchemeType newValueType = node.getValue().accept(this);
             info.setType(newValueType);
@@ -110,7 +120,6 @@ public class SemanticAnalyzer implements Visitor<SchemeType> {
         return SchemeType.UNKNOWN;
     }
 
-    // --- 5. CONTROLE DE FLUXO E OPERAÇÕES ---
     @Override
     public SchemeType visit(IfNode node) {
         node.getCondition().accept(this);
@@ -136,11 +145,11 @@ public class SemanticAnalyzer implements Visitor<SchemeType> {
                     SchemeType opType = operand.accept(this);
                     if (opType != SchemeType.NUMBER && opType != SchemeType.UNKNOWN) {
                         errors.add(
-                                "Erro de Tipo [Linha "
+                                "Type error [lin "
                                         + node.getLine()
-                                        + "]: O operador '"
+                                        + "]: the operator '"
                                         + funcName
-                                        + "' exige NUMBER, mas recebeu "
+                                        + "' required NUMBER, but received "
                                         + opType
                                         + ".");
                     }
@@ -186,7 +195,6 @@ public class SemanticAnalyzer implements Visitor<SchemeType> {
         return lastType;
     }
 
-    // --- 6. AÇÚCAR SINTÁTICO ---
     @Override
     public SchemeType visit(AndNode node) {
         for (ASTNode test : node.getExpressions()) {
@@ -243,7 +251,6 @@ public class SemanticAnalyzer implements Visitor<SchemeType> {
         return returnType != null ? returnType : SchemeType.UNKNOWN;
     }
 
-    // --- NÓS EXIGIDOS PELA INTERFACE DO SEU COLEGA ---
     @Override
     public SchemeType visit(CondClauseNode node) {
         return SchemeType.UNKNOWN;

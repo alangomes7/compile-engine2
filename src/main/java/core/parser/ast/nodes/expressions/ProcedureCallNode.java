@@ -5,8 +5,8 @@ import core.parser.ast.Visitor;
 import java.util.List;
 
 public class ProcedureCallNode extends ASTNode {
-    private final ASTNode operator; // Ex: o "+" ou o nome da função
-    private final List<ASTNode> operands; // Ex: os argumentos "1" e "2"
+    private final ASTNode operator;
+    private final List<ASTNode> operands;
 
     public ProcedureCallNode(int line, int column, ASTNode operator, List<ASTNode> operands) {
         super(line, column);

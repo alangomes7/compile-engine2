@@ -6,7 +6,7 @@ import core.parser.ast.Visitor;
 public class IfNode extends ASTNode {
     private final ASTNode condition;
     private final ASTNode thenBranch;
-    private final ASTNode elseBranch; // Pode ser null se o 'if' não tiver 'else'
+    private final ASTNode elseBranch;
 
     public IfNode(int line, int column, ASTNode condition, ASTNode thenBranch, ASTNode elseBranch) {
         super(line, column);

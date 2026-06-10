@@ -6,7 +6,6 @@ import java.util.Set;
 
 public class PythonSanitizer {
 
-    // Set of all Python reserved keywords to avoid naming collisions
     private static final Set<String> PYTHON_KEYWORDS =
             new HashSet<>(
                     Arrays.asList(
@@ -46,10 +45,6 @@ public class PythonSanitizer {
                             "with",
                             "yield"));
 
-    /**
-     * Sanitizes a Scheme identifier for Python use. 1. Maps Scheme-specific characters to
-     * Python-safe equivalents. 2. Checks if the resulting name is a Python keyword.
-     */
     public static String sanitize(String identifier) {
         String sanitized =
                 identifier
@@ -59,7 +54,6 @@ public class PythonSanitizer {
                         .replace("*", "_star") // mult* -> mult_star
                         .replace("+", "_plus"); // add+ -> add_plus
 
-        // If the sanitized name is a Python keyword (e.g., 'lambda'), append an underscore
         if (PYTHON_KEYWORDS.contains(sanitized)) {
             return sanitized + "_";
         }

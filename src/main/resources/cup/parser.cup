@@ -1,18 +1,175 @@
-package scanner;
+package core.parser;
 
-import java_cup.runtime.*;
+import java.util.ArrayList;
+import java.util.List;
+import core.parser.ast.*;
+import core.parser.ast.nodes.*;
+import core.parser.ast.nodes.literals.*;
+import core.parser.ast.nodes.expressions.*;
+import core.parser.ast.nodes.statements.*;
 
-/* Terminals (tokens returned by the scanner). */
-terminal LPAREN, RPAREN, LBRACKET, RBRACKET;
-terminal QUOTE, QUASIQUOTE, UNQUOTE, UNQUOTE_SPLICING, DOT;
-terminal TRUE, FALSE;
+/* --- TERMINAIS (Tokens do JFlex) --- */
+terminal LPAREN, RPAREN, DOT, QUOTE, VECTOR_START, ARROW;
+terminal KW_DEFINE, KW_IF, KW_SET, KW_LAMBDA, KW_BEGIN, KW_COND, KW_ELSE;
+terminal KW_CASE, KW_AND, KW_OR, KW_LET, KW_LETSTAR, KW_LETREC, KW_DO, KW_DELAY;
+terminal String IDENTIFIER, STRING, CHARACTER;
 terminal Double NUMBER;
-terminal String STRING;
-terminal String IDENTIFIER;
+terminal Boolean BOOLEAN;
 
-/* Non-terminals */
-non terminal program, expression;
+/* --- NÃO-TERMINAIS --- */
+non terminal ProgramNode program;
+non terminal List<ASTNode> command_or_definition_star, command_or_definition_plus, body, sequence;
+non terminal List<IdentifierNode> def_formals, variable_plus, formals;
+non terminal List<ASTNode> operand_star;
+non terminal ASTNode command_or_definition, definition, expression, literal, self_evaluating, quotation;
+non terminal ASTNode procedure_call, operator, operand, conditional, test, consequent, alternate;
+non terminal ASTNode assignment, derived_expression, lambda_expression;
+non terminal IdentifierNode variable;
+non terminal ASTNode datum, simple_datum, compound_datum, list;
+non terminal List<ASTNode> datum_plus;
+non terminal List<BindingNode> binding_spec_star;
+non terminal BindingNode binding_spec;
+non terminal List<CondClauseNode> cond_clause_plus;
+non terminal CondClauseNode cond_clause;
 
-/* The grammar */
-program ::= expression ;
-expression ::= IDENTIFIER ;
+/* --- REGRAS GRAMATICAIS (Gramática) --- */
+
+program ::= command_or_definition_star:list
+            {: RESULT = new ProgramNode(listleft, listright, list); :} ;
+
+command_or_definition_star ::= /* empty */
+                               {: RESULT = new ArrayList<ASTNode>(); :}
+                             | command_or_definition_star:list command_or_definition:item
+                               {: list.add(item); RESULT = list; :} ;
+
+command_or_definition_plus ::= command_or_definition:item
+                               {: List<ASTNode> l = new ArrayList<>(); l.add(item); RESULT = l; :}
+                             | command_or_definition_plus:list command_or_definition:item
+                               {: list.add(item); RESULT = list; :} ;
+
+command_or_definition ::= expression:e {: RESULT = e; :}
+                        | definition:d {: RESULT = d; :} ;
+
+definition ::= LPAREN KW_DEFINE variable:v expression:e RPAREN
+               {: RESULT = new DefineNode(vleft, vright, v, e); :}
+             /* Rule for functions with parameters */
+             | LPAREN KW_DEFINE LPAREN variable:v def_formals:f RPAREN body:b RPAREN
+               {: LambdaNode lam = new LambdaNode(fleft, fright, f, b);
+                  RESULT = new DefineNode(vleft, vright, v, lam); :}
+             /* --- ADD THIS RULE FOR ZERO ARGUMENTS --- */
+             | LPAREN KW_DEFINE LPAREN variable:v RPAREN body:b RPAREN
+               {: LambdaNode lam = new LambdaNode(vleft, vright, new ArrayList<>(), b);
+                  RESULT = new DefineNode(vleft, vright, v, lam); :} ;
+
+def_formals ::= variable_plus:list {: RESULT = list; :}
+              | variable_plus:list DOT variable:v {: list.add(v); RESULT = list; :} ;
+
+expression ::= variable:v {: RESULT = v; :}
+             | literal:l {: RESULT = l; :}
+             | procedure_call:p {: RESULT = p; :}
+             | lambda_expression:l {: RESULT = l; :}
+             | conditional:c {: RESULT = c; :}
+             | assignment:a {: RESULT = a; :}
+             | derived_expression:d {: RESULT = d; :} ;
+
+variable ::= IDENTIFIER:id {: RESULT = new IdentifierNode(idleft, idright, id); :} ;
+
+literal ::= quotation:q {: RESULT = q; :}
+          | self_evaluating:s {: RESULT = s; :} ;
+
+self_evaluating ::= BOOLEAN:b {: RESULT = new BooleanNode(bleft, bright, b); :}
+                  | NUMBER:n {: RESULT = new NumberNode(nleft, nright, n); :}
+                  | STRING:s {: RESULT = new StringNode(sleft, sright, s); :}
+                  | CHARACTER:c {: RESULT = new StringNode(cleft, cright, c); :} ;
+
+procedure_call ::= LPAREN operator:op operand_star:args RPAREN
+                   {: RESULT = new ProcedureCallNode(opleft, opright, op, args); :} ;
+
+operator ::= expression:e {: RESULT = e; :} ;
+
+operand ::= expression:e {: RESULT = e; :} ;
+
+operand_star ::= /* empty */ {: RESULT = new ArrayList<ASTNode>(); :}
+               | operand_star:list operand:op {: list.add(op); RESULT = list; :} ;
+
+lambda_expression ::= LPAREN KW_LAMBDA formals:f body:b RPAREN
+                    {: RESULT = new LambdaNode(fleft, fright, f, b); :} ;
+
+formals ::= LPAREN RPAREN {: RESULT = new ArrayList<IdentifierNode>(); :}
+          | LPAREN variable_plus:v RPAREN {: RESULT = v; :}
+          | LPAREN variable_plus:v DOT variable:last RPAREN {: v.add(last); RESULT = v; :}
+          | variable:v {: List<IdentifierNode> l = new ArrayList<>(); l.add(v); RESULT = l; :} ;
+
+variable_plus ::= variable:v {: List<IdentifierNode> l = new ArrayList<>(); l.add(v); RESULT = l; :}
+                | variable_plus:list variable:v {: list.add(v); RESULT = list; :} ;
+
+body ::= command_or_definition_plus:list {: RESULT = list; :} ;
+
+sequence ::= expression:e {: List<ASTNode> l = new ArrayList<>(); l.add(e); RESULT = l; :}
+           | sequence:list expression:e {: list.add(e); RESULT = list; :} ;
+
+conditional ::= LPAREN KW_IF test:t consequent:c alternate:a RPAREN
+              {: RESULT = new IfNode(tleft, tright, t, c, a); :} ;
+
+test ::= expression:e {: RESULT = e; :} ;
+consequent ::= expression:e {: RESULT = e; :} ;
+alternate ::= expression:e {: RESULT = e; :}
+            | /* empty */ {: RESULT = null; :} ;
+
+assignment ::= LPAREN KW_SET variable:v expression:e RPAREN
+             {: RESULT = new AssignmentNode(vleft, vright, v, e); :} ;
+
+/* --- DERIVED EXPRESSIONS IMPLEMENTATION --- */
+/* --- CORRECTED DERIVED EXPRESSIONS --- */
+/* --- CORRECTED DERIVED EXPRESSIONS --- */
+derived_expression ::=
+    LPAREN KW_BEGIN body:b RPAREN 
+    {: RESULT = new BeginNode(bleft, bright, b); :}
+    | LPAREN KW_LET LPAREN binding_spec_star:bindings RPAREN body:b RPAREN
+    {: RESULT = new LetNode(bindingsleft, bindingsright, bindings, b); :}
+    | LPAREN KW_COND cond_clause_plus:clauses RPAREN
+    {: RESULT = new CondNode(clausesleft, clausesright, clauses); :}
+    /* --- LABEL THE TERMINALS HERE: KW_AND:and and KW_OR:or --- */
+    | LPAREN KW_AND:and operand_star:args RPAREN 
+      {: RESULT = new AndNode(andleft, andright, args); :}
+    | LPAREN KW_OR:or operand_star:args RPAREN 
+      {: RESULT = new OrNode(orleft, orright, args); :} ;
+
+/* --- REGRAS DE APOIO PARA LET E COND --- */
+binding_spec_star ::= /* empty */ {: RESULT = new ArrayList<BindingNode>(); :}
+                    | binding_spec_star:list binding_spec:b {: list.add(b); RESULT = list; :} ;
+
+binding_spec ::= LPAREN variable:v expression:e RPAREN {: RESULT = new BindingNode(vleft, vright, v, e); :} ;
+
+cond_clause_plus ::= cond_clause:c {: List<CondClauseNode> l = new ArrayList<>(); l.add(c); RESULT = l; :}
+                   | cond_clause_plus:list cond_clause:c {: list.add(c); RESULT = list; :} ;
+
+cond_clause ::= LPAREN test:t sequence:s RPAREN 
+              {: RESULT = new CondClauseNode(tleft, tright, t, s); :}
+              | LPAREN KW_ELSE:e sequence:s RPAREN 
+              {: RESULT = new CondClauseNode(eleft, eright, null, s); :} ;
+
+quotation ::= QUOTE datum:d {: RESULT = d; :} ;
+
+/* datum handles both simple and compound data */
+datum ::= simple_datum:s {: RESULT = s; :}
+        | compound_datum:c {: RESULT = c; :} ;
+
+/* simple_datum handles atoms */
+simple_datum ::= BOOLEAN:b {: RESULT = new BooleanNode(bleft, bright, b); :}
+               | NUMBER:n  {: RESULT = new NumberNode(nleft, nright, n); :}
+               | STRING:s  {: RESULT = new StringNode(sleft, sright, s); :}
+               | CHARACTER:c {: RESULT = new StringNode(cleft, cright, c); :} ;
+
+/* compound_datum delegates to list */
+compound_datum ::= list:l {: RESULT = l; :} ;
+
+/* list definition */
+list ::= LPAREN RPAREN 
+         {: RESULT = new ListNode(new ArrayList<ASTNode>()); :}
+       | LPAREN datum_plus:l RPAREN 
+         {: RESULT = new ListNode(l); :} ;
+
+/* datum_plus handles the recursive list elements */
+datum_plus ::= datum:d {: List<ASTNode> l = new ArrayList<>(); l.add(d); RESULT = l; :}
+             | datum_plus:items datum:d {: items.add(d); RESULT = items; :} ;

@@ -1,11 +1,10 @@
 package app;
 
 import static core.parser.sym.EOF;
-import static core.parser.sym.LPAREN;
 import static core.parser.sym.terminalNames;
 
 import core.lexer.Scanner;
-import core.lexer.models.atomic.LexerError; // IMPORT NOVO
+import core.lexer.models.atomic.LexerError;
 import core.parser.ast.nodes.ProgramNode;
 import core.parser.parser;
 import java.io.StringReader;
@@ -28,7 +27,6 @@ public class ASTBuilder {
         Scanner scannerToParser = new Scanner(new StringReader(code));
         debugScanner(scannerToDebug);
         System.out.println("\n--- ---- Parser phase --- ----");
-        System.out.println("Parser's expected ID for LPAREN: " + LPAREN);
 
         @SuppressWarnings("deprecation")
         parser p = new parser(scannerToParser);

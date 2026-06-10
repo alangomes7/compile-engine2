@@ -5,7 +5,7 @@ import core.parser.ast.Visitor;
 import java.util.List;
 
 public class CondClauseNode extends ASTNode {
-    private final ASTNode test; // Null if 'else'
+    private final ASTNode test;
     private final List<ASTNode> sequence;
 
     public CondClauseNode(int start, int end, ASTNode test, List<ASTNode> sequence) {

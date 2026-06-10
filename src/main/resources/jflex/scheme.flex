@@ -1,9 +1,8 @@
-/* Java code for the class */
 package core.lexer;
 
-import core.lexer.models.SymbolTable;
-import core.lexer.models.atomic.Token;
 import core.lexer.models.atomic.LexerError;
+import java_cup.runtime.Symbol;
+import core.parser.sym;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,26 +13,25 @@ import java.util.List;
 %unicode
 %line
 %column
-%type Token
+%cup
 
 %{
-  private SymbolTable symbolTable = new SymbolTable();
   private List<LexerError> errors = new ArrayList<>();
-
-  public SymbolTable getSymbolTable() {
-      return symbolTable;
-  }
 
   public List<LexerError> getErrors() {
       return errors;
   }
 
-  private Token token(String type) {
-      return symbolTable.insert(type, yytext(), yyline + 1, yycolumn + 1);
+  private Symbol token(int cupSymbolType, String typeName) {
+      return new Symbol(cupSymbolType, yyline, yycolumn, yytext());
+  }
+
+  private Symbol token(int cupSymbolType, String typeName, Object parsedValue) {
+      return new Symbol(cupSymbolType, yyline, yycolumn, parsedValue);
   }
 %}
 
-/* Regular expressions and tokens */
+/* Regular expressions and macros */
 LineTerminator = \r|\n|\r\n
 InputCharacter = [^\r\n]
 WhiteSpace     = {LineTerminator} | [ \t\f]
@@ -41,7 +39,6 @@ Comment = ";" {InputCharacter}* {LineTerminator}?
 
 Digit  = [0-9]
 Number = -? {Digit}+ (\. {Digit}+)?
-
 StringCharacter = [^\r\n\"\\]
 String = \" ({StringCharacter} | \\\" | \\\\)* \"
 
@@ -56,32 +53,49 @@ Identifier = {Initial} {Subsequent}* | \+ | - | \.\.\.
 
 /* Lexical rules */
 <YYINITIAL> {
-  
-  "#t"               { return token("TRUE"); }
-  "#f"               { return token("FALSE"); }
 
-  "("                { return token("LPAREN"); }
-  ")"                { return token("RPAREN"); }
-  "["                { return token("LBRACKET"); }
-  "]"                { return token("RBRACKET"); }
-  "'"                { return token("QUOTE"); }
-  "`"                { return token("QUASIQUOTE"); }
-  ",@"               { return token("UNQUOTE_SPLICING"); }
-  ","                { return token("UNQUOTE"); }
-  "."                { return token("DOT"); }
+  /* --- PALAVRAS-CHAVE (Devem vir antes de Identifier!) --- */
+  "define"           { return token(sym.KW_DEFINE, "KW_DEFINE"); }
+  "if"               { return token(sym.KW_IF, "KW_IF"); }
+  "set!"             { return token(sym.KW_SET, "KW_SET"); }
+  "lambda"           { return token(sym.KW_LAMBDA, "KW_LAMBDA"); }
+  "begin"            { return token(sym.KW_BEGIN, "KW_BEGIN"); }
+  "cond"             { return token(sym.KW_COND, "KW_COND"); }
+  "else"             { return token(sym.KW_ELSE, "KW_ELSE"); }
+  "case"             { return token(sym.KW_CASE, "KW_CASE"); }
+  "and"              { return token(sym.KW_AND, "KW_AND"); }
+  "or"               { return token(sym.KW_OR, "KW_OR"); }
+  "let"              { return token(sym.KW_LET, "KW_LET"); }
+  "let*"             { return token(sym.KW_LETSTAR, "KW_LETSTAR"); }
+  "letrec"           { return token(sym.KW_LETREC, "KW_LETREC"); }
+  "do"               { return token(sym.KW_DO, "KW_DO"); }
+  "delay"            { return token(sym.KW_DELAY, "KW_DELAY"); }
 
-  {Number}           { return token("NUMBER"); }
-  {String}           { return token("STRING"); }
-  {Identifier}       { return token("IDENTIFIER"); }
+  /* --- SÍMBOLOS E OPERADORES --- */
+  "("                { return token(sym.LPAREN, "LPAREN"); }
+  ")"                { return token(sym.RPAREN, "RPAREN"); }
+  "."                { return token(sym.DOT, "DOT"); }
+  "'"                { return token(sym.QUOTE, "QUOTE"); }
+  "#("               { return token(sym.VECTOR_START, "VECTOR_START"); }
+  "=>"               { return token(sym.ARROW, "ARROW"); }
 
+  /* --- TIPOS PRIMITIVOS E DADOS --- */
+  "#t"               { return token(sym.BOOLEAN, "TRUE", Boolean.TRUE); }
+  "#f"               { return token(sym.BOOLEAN, "FALSE", Boolean.FALSE); }
+  {Number}           { return token(sym.NUMBER, "NUMBER", Double.parseDouble(yytext())); }
+  {String}           { return token(sym.STRING, "STRING", yytext()); }
+
+  /* --- IDENTIFICADORES (Nomes de variáveis/funções) --- */
+  {Identifier}       { return token(sym.IDENTIFIER, "IDENTIFIER"); }
+
+  /* --- IGNORADOS --- */
   {Comment}          { /* ignore */ }
   {WhiteSpace}       { /* ignore */ }
 }
 
 /* Error messages */
-[^] 
-{ 
+[^]
+{
   LexerError err = new LexerError(yyline + 1, yycolumn + 1, "Illegal character <" + yytext() + ">");
   errors.add(err);
-  // We do not return a token here, allowing the lexer to continue finding errors
 }

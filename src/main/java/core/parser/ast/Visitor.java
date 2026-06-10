@@ -39,12 +39,10 @@ public interface Visitor<T> {
 
     T visit(IdentifierNode node);
 
-    // Statements
     T visit(DefineNode node);
 
     T visit(AssignmentNode node);
 
-    // Expressões
     T visit(IfNode node);
 
     T visit(LambdaNode node);
@@ -57,6 +55,5 @@ public interface Visitor<T> {
 
     T visit(OrNode node);
 
-    // Açúcar Sintático (Derivadas)
     T visit(BeginNode node);
 }

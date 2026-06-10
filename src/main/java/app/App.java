@@ -49,13 +49,11 @@ public class App {
                     for (String err : semanticAnalyzer.getErrors()) {
                         System.out.println("   - " + err);
                     }
-                    // Lança exceção para interromper o fluxo e cair no bloco catch (marcando como
-                    // FAILED)
+
                     throw new RuntimeException("Semantic phase validation failed.");
                 } else {
                     System.out.println("Semantic analysis passed! No errors found.");
                 }
-                // --------------------------------
 
                 // Python code generator
                 System.out.println("\nGenerating Python Code...\n");

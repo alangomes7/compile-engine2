@@ -26,7 +26,6 @@ import java.util.List;
 public class Evaluator implements Visitor<Object> {
     private Environment environment = new Environment();
 
-    // --- Closure Class to handle functions ---
     private class Closure implements Procedure {
         private final LambdaNode node;
         private final Environment closureEnv;
@@ -43,7 +42,6 @@ public class Evaluator implements Visitor<Object> {
             for (int i = 0; i < params.size(); i++) {
                 localEnv.define(params.get(i).getName(), args.get(i));
             }
-            // Temporarily swap environment
             Environment previous = evaluator.environment;
             evaluator.environment = localEnv;
             Object result = null;
@@ -53,7 +51,6 @@ public class Evaluator implements Visitor<Object> {
         }
     }
 
-    // --- Core Logic ---
     @Override
     public Object visit(DefineNode node) {
         Object value = node.getValue().accept(this);
@@ -150,7 +147,6 @@ public class Evaluator implements Visitor<Object> {
         return results;
     }
 
-    // --- Unimplemented/Stubs for Visitor interface ---
     @Override
     public Object visit(ProgramNode node) {
         Object result = null;
@@ -173,15 +169,12 @@ public class Evaluator implements Visitor<Object> {
 
     @Override
     public Object visit(CondClauseNode node) {
-        // This node is typically visited via the logic in CondNode's visit method.
-        // If called directly, it indicates a structural issue.
         throw new UnsupportedOperationException(
                 "CondClauseNode should be evaluated within CondNode.");
     }
 
     @Override
     public Object visit(BindingNode node) {
-        // This node is typically visited via the logic in LetNode's visit method.
         throw new UnsupportedOperationException("BindingNode should be evaluated within LetNode.");
     }
 

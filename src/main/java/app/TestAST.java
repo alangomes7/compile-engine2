@@ -9,7 +9,6 @@ import java.io.StringReader;
 public class TestAST {
     @SuppressWarnings("CallToPrintStackTrace")
     public static void main(String[] args) {
-        // Um código Scheme de teste que usa exatamente as regras que mapeamos na v3
         String codigoScheme =
                 """
                               (define x 10)

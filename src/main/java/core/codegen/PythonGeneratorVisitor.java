@@ -63,7 +63,6 @@ public class PythonGeneratorVisitor implements Visitor<String> {
 
     @Override
     public String visit(IfNode node) {
-        // (if cond then else) -> (then if cond else else)
         return node.getThenBranch().accept(this)
                 + " if "
                 + node.getCondition().accept(this)
@@ -73,15 +72,12 @@ public class PythonGeneratorVisitor implements Visitor<String> {
 
     @Override
     public String visit(LambdaNode node) {
-        // Generate Python lambda: lambda params: body
-        // Parameters list
         StringBuilder params = new StringBuilder();
         List<IdentifierNode> parameters = node.getParameters();
         for (int i = 0; i < parameters.size(); i++) {
             if (i > 0) params.append(", ");
             params.append(parameters.get(i).accept(this));
         }
-        // Body: convert sequence to a single Python expression
         String body = sequenceToPython(node.getBody());
         return "lambda " + params + ": " + body;
     }
@@ -105,15 +101,9 @@ public class PythonGeneratorVisitor implements Visitor<String> {
 
     @Override
     public String visit(BeginNode node) {
-        // (begin expr1 expr2 ...) -> tuple indexing to return last value
         return sequenceToPython(node.getExpressions());
     }
 
-    /**
-     * Converts a sequence of Scheme expressions into a single Python expression. If only one
-     * expression, returns it directly. Otherwise, returns (expr1, expr2, ..., exprN)[-1] which
-     * evaluates all in order and yields the last one.
-     */
     private String sequenceToPython(List<ASTNode> exprs) {
         if (exprs == null || exprs.isEmpty()) {
             return "None";
@@ -132,7 +122,6 @@ public class PythonGeneratorVisitor implements Visitor<String> {
 
     @Override
     public String visit(LetNode node) {
-        // Construct the lambda parameters and arguments
         StringBuilder params = new StringBuilder();
         StringBuilder args = new StringBuilder();
 
@@ -142,13 +131,10 @@ public class PythonGeneratorVisitor implements Visitor<String> {
                 params.append(", ");
                 args.append(", ");
             }
-            // A BindingNode is essentially: (variable expression)
-            // We pass the name to params and the value to args
             params.append(bindings.get(i).getVariable().accept(this));
             args.append(bindings.get(i).getExpression().accept(this));
         }
 
-        // The body is evaluated in the new scope
         String body = sequenceToPython(node.getBody());
 
         return "(lambda " + params + ": " + body + ")(" + args + ")";
@@ -156,15 +142,11 @@ public class PythonGeneratorVisitor implements Visitor<String> {
 
     @Override
     public String visit(BindingNode node) {
-        // This is usually handled inside LetNode logic,
-        // but must be implemented for the interface.
         return node.getVariable().accept(this) + " = " + node.getExpression().accept(this);
     }
 
     @Override
     public String visit(CondNode node) {
-        // Transform (cond ((test1) (res1)) ((test2) (res2)) (else (res3)))
-        // into: (res1 if test1 else (res2 if test2 else res3))
         return buildCondTernary(node.getClauses(), 0);
     }
 
@@ -175,7 +157,6 @@ public class PythonGeneratorVisitor implements Visitor<String> {
 
         CondClauseNode clause = clauses.get(index);
 
-        // If it's the 'else' clause, just return the result
         if (clause.isElseClause()) {
             return sequenceToPython(clause.getSequence());
         }
@@ -203,7 +184,6 @@ public class PythonGeneratorVisitor implements Visitor<String> {
 
     @Override
     public String visit(AndNode node) {
-        // Transform (and a b c) -> (a and b and c)
         return "("
                 + node.getExpressions().stream()
                         .map(e -> e.accept(this))
@@ -213,7 +193,6 @@ public class PythonGeneratorVisitor implements Visitor<String> {
 
     @Override
     public String visit(OrNode node) {
-        // Transform (or a b c) -> (a or b or c)
         return "("
                 + node.getExpressions().stream()
                         .map(e -> e.accept(this))

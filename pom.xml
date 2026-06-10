@@ -81,7 +81,7 @@
                         <goal>generate</goal>
                      </goals>
                      <configuration>
-                        <cupDefinition>src/main/resources/cup/parser_v4.cup</cupDefinition>
+                        <cupDefinition>src/main/resources/cup/parser.cup</cupDefinition>
                         <outputDirectory>${project.build.directory}/generated-sources/cup</outputDirectory>
                      </configuration>
                   </execution>
@@ -101,7 +101,7 @@
                      </goals>
                      <configuration>
                         <lexDefinitions>
-                           <lexDefinition>src/main/resources/jflex/scheme_v1.flex</lexDefinition>
+                           <lexDefinition>src/main/resources/jflex/scheme.flex</lexDefinition>
                         </lexDefinitions>
                         <outputDirectory>${project.build.directory}/generated-sources/jflex</outputDirectory>
                      </configuration>
